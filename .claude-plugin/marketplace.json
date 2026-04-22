@@ -1,0 +1,18 @@
+{
+  "$schema": "https://claude.ai/schemas/plugin-marketplace.json",
+  "name": "skills-toolbox",
+  "description": "Jon Chun's agent skills toolbox — a curated collection of SKILL.md-format skills for Claude Code and compatible agents.",
+  "owner": {
+    "name": "jon-chun",
+    "url": "https://github.com/jon-chun"
+  },
+  "plugins": [
+    {
+      "name": "deep-thoughts",
+      "source": "./skills/deep-thoughts",
+      "description": "Socratic and design-thinking reasoning companion: reframes problems, surfaces assumptions, runs premortems, steelmans opposing views, and applies first-principles deliberation before answering.",
+      "version": "0.1.0",
+      "keywords": ["reasoning", "socratic", "design-thinking", "premortem", "critical-thinking", "first-principles"]
+    }
+  ]
+}

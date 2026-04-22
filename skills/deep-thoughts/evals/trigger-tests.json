@@ -1,0 +1,158 @@
+{
+  "$schema": "https://agentskills.io/schemas/trigger-tests-v1.json",
+  "skill": "deep-thoughts",
+  "version": "0.1.0",
+  "description": "Should/shouldn't-trigger cases used to tune the SKILL.md description. Run with tests/e2e/test_trigger_evals.py for structural checks, or a live LLM harness for accuracy checks.",
+  "cases": [
+    {
+      "id": "think-through-pivot",
+      "query": "Help me think through whether we should pivot our research direction.",
+      "should_trigger": true,
+      "rationale": "Open-ended deliberation request — classic Socratic trigger."
+    },
+    {
+      "id": "questions-before-deciding",
+      "query": "What questions should I ask before deciding between these two architectures?",
+      "should_trigger": true,
+      "rationale": "Explicitly asks for clarifying questions — Socratic ladder fit."
+    },
+    {
+      "id": "steelman-microservices",
+      "query": "Steelman the opposing view on switching to microservices.",
+      "should_trigger": true,
+      "rationale": "Uses the literal trigger word 'steelman'."
+    },
+    {
+      "id": "premortem-launch",
+      "query": "Run a premortem on this product launch.",
+      "should_trigger": true,
+      "rationale": "Explicit premortem request."
+    },
+    {
+      "id": "hiring-reframe",
+      "query": "I keep circling on this hiring decision — help me reframe it.",
+      "should_trigger": true,
+      "rationale": "'Circling' + 'reframe' are both listed triggers."
+    },
+    {
+      "id": "assumption-check",
+      "query": "What assumptions am I making that could be wrong?",
+      "should_trigger": true,
+      "rationale": "Direct assumption-audit invocation."
+    },
+    {
+      "id": "stress-test-gtm",
+      "query": "Let's stress-test this go-to-market plan.",
+      "should_trigger": true,
+      "rationale": "'Stress-test' is a listed trigger; go-to-market is an executive vocabulary term."
+    },
+    {
+      "id": "debug-thinking",
+      "query": "Debug my thinking on why our user retention is low.",
+      "should_trigger": true,
+      "rationale": "Engineer vocabulary version ('debug my thinking') + unclear problem."
+    },
+    {
+      "id": "first-principles",
+      "query": "Why do we have this pattern? Let me do first-principles on it.",
+      "should_trigger": true,
+      "rationale": "Explicit first-principles invocation."
+    },
+    {
+      "id": "rewrite-or-iterate",
+      "query": "Should I rewrite this service in Rust or keep iterating on the current stack?",
+      "should_trigger": true,
+      "rationale": "Architecture decision with unclear criteria — thinking problem."
+    },
+    {
+      "id": "double-crux",
+      "query": "We disagree about the roadmap — can you find a double-crux?",
+      "should_trigger": true,
+      "rationale": "Explicit double-crux request."
+    },
+    {
+      "id": "wrong-problem",
+      "query": "I feel like we're solving the wrong problem.",
+      "should_trigger": true,
+      "rationale": "Reframe trigger — user suspects the framing is off."
+    },
+    {
+      "id": "ethical-tradeoff",
+      "query": "What am I missing about this ethical tradeoff between privacy and personalization?",
+      "should_trigger": true,
+      "rationale": "'What am I missing' + ethics — high-deliberation territory."
+    },
+    {
+      "id": "premortem-funding",
+      "query": "Before we commit $200k to this, help me pre-mortem it.",
+      "should_trigger": true,
+      "rationale": "Premortem request, high-stakes reversal difficulty."
+    },
+    {
+      "id": "five-whys-deploy",
+      "query": "Do five whys on why the deploy keeps failing.",
+      "should_trigger": true,
+      "rationale": "Explicit five-whys invocation."
+    },
+    {
+      "id": "what-should-we-build",
+      "query": "What should we build next — feature X or platform Y?",
+      "should_trigger": true,
+      "rationale": "Product direction decision with unclear criteria."
+    },
+    {
+      "id": "ssh-port",
+      "query": "What port does SSH use by default?",
+      "should_trigger": false,
+      "rationale": "Direct factual question, no deliberation needed."
+    },
+    {
+      "id": "reverse-string",
+      "query": "Write a Python function that reverses a string.",
+      "should_trigger": false,
+      "rationale": "Pure execution task."
+    },
+    {
+      "id": "capital-malta",
+      "query": "What's the capital of Malta?",
+      "should_trigger": false,
+      "rationale": "Trivia lookup."
+    },
+    {
+      "id": "syntax-error",
+      "query": "Fix this syntax error in my JavaScript.",
+      "should_trigger": false,
+      "rationale": "Bug fix with clear criteria."
+    },
+    {
+      "id": "run-tests",
+      "query": "Run the tests and show me the output.",
+      "should_trigger": false,
+      "rationale": "Execution instruction."
+    },
+    {
+      "id": "summarize-article",
+      "query": "Summarize this article in 3 bullets.",
+      "should_trigger": false,
+      "rationale": "Summarization task, no deliberation."
+    },
+    {
+      "id": "image-convert",
+      "query": "Convert this image to PNG.",
+      "should_trigger": false,
+      "rationale": "Mechanical conversion task."
+    },
+    {
+      "id": "arithmetic",
+      "query": "What's 17 times 23?",
+      "should_trigger": false,
+      "rationale": "Arithmetic."
+    },
+    {
+      "id": "git-delete-branch",
+      "query": "Give me the git command to delete a remote branch.",
+      "should_trigger": false,
+      "rationale": "Command lookup."
+    }
+  ]
+}

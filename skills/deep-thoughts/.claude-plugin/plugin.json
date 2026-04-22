@@ -1,0 +1,27 @@
+{
+  "$schema": "https://claude.ai/schemas/plugin.json",
+  "name": "deep-thoughts",
+  "version": "0.1.0",
+  "description": "Socratic and design-thinking reasoning companion: reframes problems, surfaces assumptions, runs premortems, steelmans opposing views, and applies first-principles deliberation before answering.",
+  "author": {
+    "name": "jon-chun",
+    "url": "https://github.com/jon-chun"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jon-chun/skills-toolbox",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jon-chun/skills-toolbox.git",
+    "directory": "skills/deep-thoughts"
+  },
+  "keywords": [
+    "reasoning",
+    "socratic",
+    "design-thinking",
+    "premortem",
+    "steelman",
+    "first-principles",
+    "critical-thinking",
+    "decision-quality"
+  ]
+}

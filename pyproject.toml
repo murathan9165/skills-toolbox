@@ -1,0 +1,33 @@
+[project]
+name = "skills-toolbox"
+version = "0.1.0"
+description = "Jon Chun's agent skills toolbox — SKILL.md-format skills for Claude Code and compatible agents."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "jon-chun" }]
+keywords = ["agent-skills", "claude-code", "skill-md", "ai-agents"]
+
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pyyaml>=6.0",
+    "jsonschema>=4.20",
+    "ruff>=0.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: tests that call a live LLM (require API key, excluded by default)",
+]
+addopts = "-v --tb=short -m 'not live'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

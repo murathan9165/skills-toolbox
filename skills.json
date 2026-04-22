@@ -1,0 +1,16 @@
+{
+  "name": "jon-chun/skills-toolbox",
+  "version": "0.1.0",
+  "description": "Jon Chun's agent skills toolbox — SKILL.md-format skills compatible with Claude Code, Codex, Cursor, Copilot, and Gemini CLI.",
+  "homepage": "https://github.com/jon-chun/skills-toolbox",
+  "author": "jon-chun",
+  "license": "MIT",
+  "skills": [
+    {
+      "name": "deep-thoughts",
+      "path": "skills/deep-thoughts",
+      "description": "Socratic and design-thinking reasoning companion for rigorous deliberation before answering or deciding.",
+      "version": "0.1.0"
+    }
+  ]
+}
