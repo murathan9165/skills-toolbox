@@ -204,11 +204,19 @@ Anything over ~100 lines of reference material goes in `references/<topic>.md`, 
   "author": { "name": "jon-chun", "url": "https://github.com/jon-chun" },
   "license": "MIT",
   "homepage": "https://github.com/jon-chun/skills-toolbox",
+  "repository": "https://github.com/jon-chun/skills-toolbox",
   "keywords": ["reasoning", "socratic", "design-thinking", "premortem"]
 }
 ```
 
-Mirror the `name`, `version`, `description`, `author`, `license` from SKILL.md frontmatter. CI verifies they match.
+Mirror the `name`, `version`, `description`, `author`, `license` from
+SKILL.md frontmatter. CI verifies they match.
+
+> **Schema gotcha — `repository` must be a string.** Claude Code's
+> `plugin.json` validator requires `repository: "<url>"` (not the npm-style
+> `{ "type": "git", "url": "...", "directory": "..." }` object). Object-form
+> repository fields fail `claude plugin validate` with
+> `repository: Invalid input: expected string, received object`.
 
 ### 5.2 `.claude-plugin/marketplace.json` (repo root)
 
@@ -219,12 +227,30 @@ Mirror the `name`, `version`, `description`, `author`, `license` from SKILL.md f
   "plugins": [
     {
       "name": "deep-thoughts",
-      "source": "./skills/deep-thoughts",
+      "source": "./",
+      "skills": ["./skills/deep-thoughts"],
+      "strict": false,
+      "version": "0.1.0",
       "description": "Socratic and design-thinking reasoning skill."
     }
   ]
 }
 ```
+
+**Why this shape (and not `source: "./skills/<name>"`).** Claude Code's
+plugin loader discovers skills at `<source>/skills/<name>/SKILL.md` by
+default. Pointing `source` directly at a skill folder would make the loader
+look for `skills/deep-thoughts/skills/<name>/SKILL.md` — which doesn't
+exist, so the plugin installs with zero skills. The canonical fix (used by
+`anthropic-agent-skills`) is to set `source: "./"` and override discovery
+with an explicit `skills` array. `strict: false` then tells Claude Code the
+marketplace entry — not a per-source `plugin.json` — is authoritative for
+component definitions.
+
+Per-skill `skills/<name>/.claude-plugin/plugin.json` is still maintained: it
+documents the skill, passes `claude plugin validate`, and supports
+project-scope installs that copy a single skill folder into a project's
+`.claude/skills/`.
 
 Users install with:
 ```bash

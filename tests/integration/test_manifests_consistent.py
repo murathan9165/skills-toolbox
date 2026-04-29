@@ -46,12 +46,38 @@ def test_marketplace_lists_every_skill(
     skills: list[Skill],
     repo_root: Path,
 ) -> None:
-    market_sources = {
-        (repo_root / p["source"]).resolve() for p in marketplace_manifest["plugins"]
-    }
+    """Every discovered skill directory must be reachable from at least one
+    marketplace plugin entry — either as the plugin's ``source`` (legacy
+    pattern) or as one of its ``skills`` paths (canonical pattern).
+    """
+    reachable: set[Path] = set()
+    for plugin in marketplace_manifest["plugins"]:
+        source = plugin.get("source")
+        if not isinstance(source, str):
+            continue
+        plugin_root = (repo_root / source).resolve()
+        skills_field = plugin.get("skills")
+        if skills_field is None:
+            # Default discovery dir
+            default = plugin_root / "skills"
+            if default.is_dir():
+                for child in default.iterdir():
+                    if child.is_dir() and (child / "SKILL.md").is_file():
+                        reachable.add(child.resolve())
+            # Some toolboxes also expose the plugin root itself as a skill dir
+            if (plugin_root / "SKILL.md").is_file():
+                reachable.add(plugin_root)
+            continue
+        if isinstance(skills_field, str):
+            skills_field = [skills_field]
+        for entry in skills_field:
+            reachable.add((plugin_root / entry).resolve())
+
     for s in skills:
-        assert s.path.resolve() in market_sources, (
-            f"Skill {s.name} at {s.path} is not listed in marketplace.json"
+        assert s.path.resolve() in reachable, (
+            f"Skill {s.name} at {s.path} is not reachable from any "
+            "marketplace.json plugin entry (checked source defaults and "
+            "explicit 'skills' arrays)."
         )
 
 
@@ -60,10 +86,7 @@ def test_skills_manifest_lists_every_skill(
     skills: list[Skill],
     repo_root: Path,
 ) -> None:
-    manifest_paths = {
-        (repo_root / entry["path"]).resolve()
-        for entry in skills_manifest["skills"]
-    }
+    manifest_paths = {(repo_root / entry["path"]).resolve() for entry in skills_manifest["skills"]}
     for s in skills:
         assert s.path.resolve() in manifest_paths, (
             f"Skill {s.name} at {s.path} is not listed in skills.json"

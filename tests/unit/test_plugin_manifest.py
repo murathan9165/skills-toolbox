@@ -16,9 +16,7 @@ SEMVER_RE = re.compile(
 
 
 def test_plugin_manifest_parses(skill: Skill) -> None:
-    assert skill.plugin_manifest is not None, (
-        f"{skill.name}: plugin.json did not parse as JSON"
-    )
+    assert skill.plugin_manifest is not None, f"{skill.name}: plugin.json did not parse as JSON"
     assert isinstance(skill.plugin_manifest, dict)
 
 
@@ -48,6 +46,37 @@ def test_plugin_manifest_name_matches_skill(skill: Skill) -> None:
         f"{skill.name}: plugin.json name '{skill.plugin_manifest['name']}' "
         f"does not match skill directory '{skill.name}'"
     )
+
+
+def test_plugin_manifest_repository_is_string(skill: Skill) -> None:
+    """Claude Code's plugin.json schema requires ``repository`` to be a string
+    URL, not an object. Declaring it as ``{type, url, directory}`` (npm-style)
+    fails ``claude plugin validate`` with:
+
+        repository: Invalid input: expected string, received object
+    """
+    assert skill.plugin_manifest is not None
+    repo = skill.plugin_manifest.get("repository")
+    if repo is None:
+        pytest.skip("repository not declared")
+    assert isinstance(repo, str) and repo.strip(), (
+        f"{skill.name}: plugin.json 'repository' must be a string URL "
+        f"(got {type(repo).__name__}). The npm-style "
+        "{type, url, directory} object form fails Claude Code's validator."
+    )
+
+
+def test_plugin_manifest_author_shape(skill: Skill) -> None:
+    """``author`` may be a string or an object with at least ``name``."""
+    assert skill.plugin_manifest is not None
+    author = skill.plugin_manifest.get("author")
+    if author is None:
+        pytest.skip("author not declared")
+    if isinstance(author, str):
+        assert author.strip(), f"{skill.name}: plugin.json author string is empty"
+        return
+    assert isinstance(author, dict), f"{skill.name}: plugin.json author must be string or object"
+    assert author.get("name"), f"{skill.name}: plugin.json author object must include 'name'"
 
 
 def test_plugin_manifest_keywords_are_list(skill: Skill) -> None:

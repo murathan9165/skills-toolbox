@@ -15,9 +15,7 @@ def test_readme_mentions_every_skill(skills: list[Skill], readme_text: str) -> N
 
 def test_readme_has_install_instructions(readme_text: str) -> None:
     for marker in ("claude plugin marketplace add", "skills-toolbox"):
-        assert marker in readme_text, (
-            f"README.md missing install instruction marker: {marker!r}"
-        )
+        assert marker in readme_text, f"README.md missing install instruction marker: {marker!r}"
 
 
 def test_readme_references_license(readme_text: str) -> None:

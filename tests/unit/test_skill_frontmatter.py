@@ -66,8 +66,7 @@ def test_description_present(skill: Skill) -> None:
 def test_description_length(skill: Skill) -> None:
     desc: str = skill.frontmatter["description"]
     assert len(desc) <= DESCRIPTION_MAX_LEN, (
-        f"description for {skill.name} is {len(desc)} chars "
-        f"(spec cap: {DESCRIPTION_MAX_LEN})."
+        f"description for {skill.name} is {len(desc)} chars (spec cap: {DESCRIPTION_MAX_LEN})."
     )
 
 
@@ -107,6 +106,4 @@ def test_version_is_valid_semver(skill: Skill) -> None:
     version = skill.frontmatter.get("version")
     if version is None:
         pytest.skip("version not declared")
-    assert SEMVER_RE.match(str(version)), (
-        f"{skill.name}: version '{version}' is not valid semver."
-    )
+    assert SEMVER_RE.match(str(version)), f"{skill.name}: version '{version}' is not valid semver."

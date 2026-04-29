@@ -9,9 +9,7 @@ from typing import Any
 def test_marketplace_has_name_and_owner(marketplace_manifest: dict[str, Any]) -> None:
     assert marketplace_manifest.get("name"), "marketplace.json missing 'name'"
     owner = marketplace_manifest.get("owner")
-    assert isinstance(owner, dict) and owner.get("name"), (
-        "marketplace.json missing owner.name"
-    )
+    assert isinstance(owner, dict) and owner.get("name"), "marketplace.json missing owner.name"
 
 
 def test_marketplace_has_plugins_list(marketplace_manifest: dict[str, Any]) -> None:
@@ -35,14 +33,19 @@ def test_every_marketplace_plugin_source_exists(
     marketplace_manifest: dict[str, Any],
     repo_root: Path,
 ) -> None:
+    """``source`` must resolve to a real directory inside the marketplace repo.
+
+    SKILL.md placement is *not* asserted here — that lives in
+    ``test_plugin_loader_simulation.py``, which mirrors how Claude Code
+    actually discovers skills (``<source>/skills/<name>/SKILL.md`` by default,
+    or via the ``skills`` override). Asserting SKILL.md at ``<source>``
+    directly was wrong: it does not match the plugin loader's behavior and
+    masked a real install bug.
+    """
     for plugin in marketplace_manifest["plugins"]:
         source = plugin["source"]
         resolved = (repo_root / source).resolve()
-        assert resolved.exists(), (
+        assert resolved.is_dir(), (
             f"marketplace plugin {plugin['name']}: source path "
-            f"{source!r} does not resolve ({resolved})"
-        )
-        assert (resolved / "SKILL.md").exists(), (
-            f"marketplace plugin {plugin['name']}: source {source!r} "
-            "does not contain SKILL.md"
+            f"{source!r} does not resolve to a directory ({resolved})"
         )

@@ -34,8 +34,9 @@ CATEGORIES = [
 def build_template(decision: str, horizon: str) -> str:
     today = dt.date.today().isoformat()
     categories = "\n".join(f"- **{c}** — " for c in CATEGORIES)
-    return dedent(
-        f"""
+    return (
+        dedent(
+            f"""
         # Premortem — {decision}
 
         **Date:** {today}
@@ -82,7 +83,9 @@ def build_template(decision: str, horizon: str) -> str:
 
         > <fill in>
         """
-    ).strip() + "\n"
+        ).strip()
+        + "\n"
+    )
 
 
 def main() -> int:

@@ -6,12 +6,23 @@
     "name": "jon-chun",
     "url": "https://github.com/jon-chun"
   },
+  "metadata": {
+    "version": "0.1.0"
+  },
   "plugins": [
     {
       "name": "deep-thoughts",
-      "source": "./skills/deep-thoughts",
-      "description": "Socratic and design-thinking reasoning companion: reframes problems, surfaces assumptions, runs premortems, steelmans opposing views, and applies first-principles deliberation before answering.",
+      "source": "./",
+      "skills": ["./skills/deep-thoughts"],
+      "strict": false,
       "version": "0.1.0",
+      "description": "Socratic and design-thinking reasoning companion: reframes problems, surfaces assumptions, runs premortems, steelmans opposing views, and applies first-principles deliberation before answering.",
+      "author": {
+        "name": "jon-chun",
+        "url": "https://github.com/jon-chun"
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/jon-chun/skills-toolbox",
       "keywords": ["reasoning", "socratic", "design-thinking", "premortem", "critical-thinking", "first-principles"]
     }
   ]

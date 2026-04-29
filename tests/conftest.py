@@ -42,9 +42,7 @@ def _parse_skill_md(skill_md: Path) -> tuple[dict[str, Any], str]:
     text = skill_md.read_text(encoding="utf-8")
     match = FRONTMATTER_RE.match(text)
     if match is None:
-        raise ValueError(
-            f"{skill_md} does not start with a YAML frontmatter block (--- ... ---)."
-        )
+        raise ValueError(f"{skill_md} does not start with a YAML frontmatter block (--- ... ---).")
     frontmatter = yaml.safe_load(match.group("frontmatter")) or {}
     if not isinstance(frontmatter, dict):
         raise ValueError(f"{skill_md} frontmatter did not parse as a YAML mapping.")
@@ -84,6 +82,7 @@ def _discover_skills() -> list[Skill]:
 
 
 # --- Fixtures ----------------------------------------------------------------
+
 
 @pytest.fixture(scope="session")
 def repo_root() -> Path:

@@ -39,9 +39,14 @@ More skills coming. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add one.
 ### Claude Code (plugin marketplace — recommended)
 
 ```bash
+# Add the marketplace once
 claude plugin marketplace add jon-chun/skills-toolbox
+
+# Install individual skills (each is exposed as its own plugin)
 claude plugin install deep-thoughts@skills-toolbox
 ```
+
+Verify with `claude plugin list` — `deep-thoughts@skills-toolbox` should appear with status `enabled`. The marketplace and every plugin manifest pass `claude plugin validate` in CI.
 
 ### skills.sh (Vercel Labs)
 
@@ -86,21 +91,31 @@ skills-toolbox/
 │   ├── tech-spec.md                # Authoring + publishing spec — read first if contributing
 │   └── …
 ├── skills/
-│   └── deep-thoughts/              # One skill per subfolder
+│   └── deep-thoughts/              # One skill per subfolder; canonical Anthropic layout
 │       ├── SKILL.md                # Required: frontmatter + instructions
 │       ├── README.md
 │       ├── CHANGELOG.md
-│       ├── .claude-plugin/plugin.json
+│       ├── .claude-plugin/plugin.json   # Per-skill metadata (also passes `claude plugin validate`)
 │       ├── references/             # Progressive-disclosure method docs
 │       ├── scripts/                # Optional tools (Python here)
 │       └── evals/trigger-tests.json
 ├── .claude-plugin/
-│   └── marketplace.json            # Marketplace manifest (Claude Code)
+│   └── marketplace.json            # Marketplace manifest. Each plugin uses
+│                                   #   source: "./", skills: ["./skills/<name>"], strict: false
+│                                   # so Claude Code's loader resolves SKILL.md correctly.
 ├── skills.json                     # skills.sh bundle manifest
-├── tests/                          # unit / integration / e2e
+├── tests/                          # unit / integration / e2e + official-validator e2e
 ├── pyproject.toml                  # uv-managed dev deps
 └── .github/workflows/ci.yml        # Validates every commit
 ```
+
+> **Marketplace layout note.** Earlier versions declared each plugin with
+> `source: "./skills/<name>"` (no `skills` array). That fails Claude Code's
+> plugin loader, which expects skills at `<source>/skills/<name>/SKILL.md` by
+> default — so the plugin would install with zero skills. The current layout
+> mirrors `anthropic-agent-skills`: one shared source (`./`) plus an explicit
+> `skills` path per plugin. See `tests/integration/test_plugin_loader_simulation.py`
+> for the regression test.
 
 ---
 

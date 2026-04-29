@@ -9,11 +9,7 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/jon-chun/skills-toolbox",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jon-chun/skills-toolbox.git",
-    "directory": "skills/deep-thoughts"
-  },
+  "repository": "https://github.com/jon-chun/skills-toolbox",
   "keywords": [
     "reasoning",
     "socratic",

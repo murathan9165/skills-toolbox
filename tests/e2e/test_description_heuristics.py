@@ -26,8 +26,7 @@ COMMA_TOKEN_RE = re.compile(r"([a-z][a-z\- ]{2,30})\s*[,.;]", re.IGNORECASE)
 def test_description_starts_with_use_when(skill: Skill) -> None:
     desc: str = skill.frontmatter["description"].strip()
     assert desc.lower().startswith("use when"), (
-        f"{skill.name}: description should start with 'Use when ...'. "
-        f"Got: {desc[:40]!r}"
+        f"{skill.name}: description should start with 'Use when ...'. Got: {desc[:40]!r}"
     )
 
 
@@ -35,11 +34,7 @@ def test_description_is_third_person(skill: Skill) -> None:
     desc: str = skill.frontmatter["description"]
     hits = FIRST_PERSON_RE.findall(desc)
     # Allow "we" inside quoted trigger phrases like "what should we build"
-    hits_unquoted = [
-        h
-        for h in hits
-        if not any(h in q for q in TRIGGER_PHRASE_RE.findall(desc))
-    ]
+    hits_unquoted = [h for h in hits if not any(h in q for q in TRIGGER_PHRASE_RE.findall(desc))]
     assert not hits_unquoted, (
         f"{skill.name}: description contains first-person tokens {hits_unquoted} "
         "outside of quoted trigger phrases. Descriptions must be third person."
@@ -59,9 +54,7 @@ def test_description_has_vocabulary_spread(skill: Skill) -> None:
 
 def test_description_length_under_cap(skill: Skill) -> None:
     desc: str = skill.frontmatter["description"]
-    assert len(desc) <= 1024, (
-        f"{skill.name}: description {len(desc)} > 1024 chars (spec cap)."
-    )
+    assert len(desc) <= 1024, f"{skill.name}: description {len(desc)} > 1024 chars (spec cap)."
 
 
 def test_description_does_not_summarise_workflow(skill: Skill) -> None:

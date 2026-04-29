@@ -16,9 +16,7 @@ def test_skills_manifest_top_level_fields(skills_manifest: dict[str, Any]) -> No
 
 def test_skills_manifest_version_is_semver(skills_manifest: dict[str, Any]) -> None:
     version = skills_manifest["version"]
-    assert SEMVER_RE.match(version), (
-        f"skills.json version '{version}' is not semver-like."
-    )
+    assert SEMVER_RE.match(version), f"skills.json version '{version}' is not semver-like."
 
 
 def test_skills_manifest_skills_is_nonempty_list(
@@ -34,9 +32,7 @@ def test_every_skills_entry_has_required_fields(
     required = {"name", "path", "description"}
     for entry in skills_manifest["skills"]:
         missing = required - entry.keys()
-        assert not missing, (
-            f"skills.json entry {entry.get('name', '<unnamed>')} missing: {missing}"
-        )
+        assert not missing, f"skills.json entry {entry.get('name', '<unnamed>')} missing: {missing}"
 
 
 def test_every_skills_entry_path_exists(
@@ -45,9 +41,7 @@ def test_every_skills_entry_path_exists(
 ) -> None:
     for entry in skills_manifest["skills"]:
         path = repo_root / entry["path"]
-        assert path.exists(), (
-            f"skills.json entry {entry['name']}: path {entry['path']!r} missing"
-        )
+        assert path.exists(), f"skills.json entry {entry['name']}: path {entry['path']!r} missing"
         assert (path / "SKILL.md").exists(), (
             f"skills.json entry {entry['name']}: {entry['path']!r} lacks SKILL.md"
         )
