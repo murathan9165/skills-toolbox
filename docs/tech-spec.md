@@ -86,8 +86,9 @@ skills-toolbox/
 │       ├── SKILL.md                   # REQUIRED: YAML frontmatter + instructions
 │       ├── README.md                  # Optional but recommended: human-facing
 │       ├── CHANGELOG.md               # Per-skill semver history
-│       ├── .claude-plugin/
-│       │   └── plugin.json            # Claude Code plugin manifest for this skill
+│       │                              # NOTE: NO .claude-plugin/plugin.json here.
+│       │                              # Per-skill plugin.json conflicts with the
+│       │                              # marketplace entry (see §5.1).
 │       ├── references/                # Progressive-disclosure reference docs (loaded on demand)
 │       │   └── *.md
 │       ├── scripts/                   # Optional executable helpers (language-agnostic)
@@ -194,26 +195,30 @@ Anything over ~100 lines of reference material goes in `references/<topic>.md`, 
 
 ## 5. Plugin & marketplace manifests
 
-### 5.1 `skills/<name>/.claude-plugin/plugin.json`
+### 5.1 Per-skill `plugin.json` — DO NOT ADD
 
-```json
-{
-  "name": "deep-thoughts",
-  "version": "0.1.0",
-  "description": "Socratic and design-thinking reasoning skill.",
-  "author": { "name": "jon-chun", "url": "https://github.com/jon-chun" },
-  "license": "MIT",
-  "homepage": "https://github.com/jon-chun/skills-toolbox",
-  "repository": "https://github.com/jon-chun/skills-toolbox",
-  "keywords": ["reasoning", "socratic", "design-thinking", "premortem"]
-}
-```
+> **Hard rule.** Do not place `.claude-plugin/plugin.json` inside any
+> `skills/<name>/` directory. Claude Code's loader treats a per-skill
+> plugin.json as a second component-declaring manifest, conflicting with the
+> marketplace's `skills: [...]` entry, and `claude /doctor` reports:
+>
+> > Plugin <name> has conflicting manifests: both plugin.json and
+> > marketplace entry specify components.
+>
+> All plugin metadata (`name`, `version`, `description`, `author`, `license`,
+> `keywords`, `repository`, `homepage`) lives in the marketplace.json plugin
+> entry instead. CI enforces this with
+> `tests/unit/test_skill_structure.py::test_skill_has_no_per_skill_plugin_manifest`
+> and `tests/integration/test_plugin_loader_simulation.py::test_strict_false_skills_paths_have_no_sibling_plugin_json`.
 
-Mirror the `name`, `version`, `description`, `author`, `license` from
-SKILL.md frontmatter. CI verifies they match.
+The proven-good layout (`anthropic-agent-skills`) ships zero per-skill
+plugin.json files. SKILL.md frontmatter remains the source of truth for
+skill identity, and the marketplace entry is the source of truth for plugin
+distribution metadata.
 
-> **Schema gotcha — `repository` must be a string.** Claude Code's
-> `plugin.json` validator requires `repository: "<url>"` (not the npm-style
+> **Schema gotcha — `repository` must be a string.** When set on the
+> marketplace entry, Claude Code's plugin schema requires
+> `repository: "<url>"` (not the npm-style
 > `{ "type": "git", "url": "...", "directory": "..." }` object). Object-form
 > repository fields fail `claude plugin validate` with
 > `repository: Invalid input: expected string, received object`.
@@ -247,10 +252,11 @@ with an explicit `skills` array. `strict: false` then tells Claude Code the
 marketplace entry — not a per-source `plugin.json` — is authoritative for
 component definitions.
 
-Per-skill `skills/<name>/.claude-plugin/plugin.json` is still maintained: it
-documents the skill, passes `claude plugin validate`, and supports
-project-scope installs that copy a single skill folder into a project's
-`.claude/skills/`.
+Per-skill `skills/<name>/.claude-plugin/plugin.json` is **deliberately
+absent** — see §5.1. For project-scope installs (copy a skill folder into a
+project's `.claude/skills/`), the SKILL.md frontmatter alone is sufficient;
+no per-skill plugin.json is required by Claude Code or any other
+SKILL.md-compatible agent.
 
 Users install with:
 ```bash
@@ -290,14 +296,14 @@ Three layers, all run in CI. Python is used as the test host because it is alrea
 Structural checks on each skill in isolation:
 - `test_skill_frontmatter.py` — YAML parses; required fields present; `name` regex; `description` length bounds.
 - `test_skill_structure.py` — required files exist (`SKILL.md`, `README.md` if declared, `evals/trigger-tests.json`).
-- `test_plugin_manifest.py` — per-skill `plugin.json` parses and has required fields.
+- `test_plugin_manifest.py` — each skill's marketplace plugin entry parses and has required fields (per-skill `plugin.json` was removed; see §5.1).
 
 ### 6.2 Integration tests (`tests/integration/`)
 
 Cross-file consistency:
 - `test_marketplace_manifest.py` — `marketplace.json` parses; every listed plugin `source` directory exists and contains `SKILL.md`.
 - `test_skills_manifest.py` — `skills.json` parses; every listed skill path exists.
-- `test_manifests_consistent.py` — skill `name` and `version` match across SKILL.md frontmatter, `plugin.json`, `marketplace.json`, and `skills.json`.
+- `test_manifests_consistent.py` — skill `name` and `version` match across SKILL.md frontmatter, `marketplace.json`, and `skills.json`.
 
 ### 6.3 E2E tests (`tests/e2e/`)
 
@@ -399,11 +405,11 @@ All of these are zero-cost because SKILL.md is the same file across agents.
 
 1. Create `skills/<name>/` following the layout in Section 3.
 2. Write SKILL.md with frontmatter per Section 4; keep description under 1,024 chars and triggering-only.
-3. Add `.claude-plugin/plugin.json` with fields mirroring frontmatter.
+3. Add a plugin entry to `.claude-plugin/marketplace.json` (`source: "./"`, `skills: ["./skills/<name>"]`, `strict: false`, plus name/version/description/keywords). Do **not** add a per-skill `.claude-plugin/plugin.json` — see §5.1.
 4. Add `evals/trigger-tests.json` with ≥ 20 cases.
-5. Add the skill to `.claude-plugin/marketplace.json` and `skills.json`.
+5. Add the skill to `skills.json`.
 6. Add a catalog entry to `README.md`.
-7. Run `uv run pytest tests/` until green.
+7. Run `uv run pytest tests/` until green; verify with `claude plugin validate .` and a real `claude plugin install <name>@skills-toolbox` round-trip.
 8. Add a `CHANGELOG.md` entry (skill-level and repo-level).
 9. Commit, push, tag release.
 

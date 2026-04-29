@@ -17,8 +17,8 @@ The toolbox is **authoring-quality first, publishing-reach second**. Every skill
 - A triggering-only description (≤ 1024 chars, per the spec)
 - Progressive-disclosure reference docs (loaded only when the method is applied)
 - A trigger-eval harness (≥ 20 should / shouldn't cases)
-- A Claude Code plugin manifest (`.claude-plugin/plugin.json`)
-- CI that validates every commit
+- A marketplace entry in `.claude-plugin/marketplace.json` (sole source of plugin metadata)
+- CI that validates every commit, including a real `claude plugin validate` run
 
 See [`docs/tech-spec.md`](docs/tech-spec.md) for the complete authoring and publishing spec.
 
@@ -95,12 +95,12 @@ skills-toolbox/
 │       ├── SKILL.md                # Required: frontmatter + instructions
 │       ├── README.md
 │       ├── CHANGELOG.md
-│       ├── .claude-plugin/plugin.json   # Per-skill metadata (also passes `claude plugin validate`)
 │       ├── references/             # Progressive-disclosure method docs
 │       ├── scripts/                # Optional tools (Python here)
 │       └── evals/trigger-tests.json
 ├── .claude-plugin/
-│   └── marketplace.json            # Marketplace manifest. Each plugin uses
+│   └── marketplace.json            # Marketplace manifest — SOLE source of plugin metadata.
+│                                   # Each plugin uses
 │                                   #   source: "./", skills: ["./skills/<name>"], strict: false
 │                                   # so Claude Code's loader resolves SKILL.md correctly.
 ├── skills.json                     # skills.sh bundle manifest
@@ -116,6 +116,14 @@ skills-toolbox/
 > mirrors `anthropic-agent-skills`: one shared source (`./`) plus an explicit
 > `skills` path per plugin. See `tests/integration/test_plugin_loader_simulation.py`
 > for the regression test.
+>
+> **Per-skill `plugin.json` is intentionally absent.** Putting a
+> `.claude-plugin/plugin.json` inside a skill directory that the marketplace
+> also declares via `skills: [...]` triggers
+> `claude /doctor`'s "conflicting manifests: both plugin.json and marketplace
+> entry specify components" error — Claude Code's loader treats the nested
+> plugin.json as a second component-declaring manifest. `marketplace.json` is
+> the sole source of plugin metadata (matches `anthropic-agent-skills`).
 
 ---
 

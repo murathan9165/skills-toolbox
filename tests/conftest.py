@@ -1,8 +1,14 @@
 """Shared pytest fixtures for skills-toolbox tests.
 
-Discovers every skill under ``skills/`` and exposes parsed SKILL.md frontmatter,
-SKILL.md body, and the per-skill plugin manifest. Also exposes the repo-level
-``marketplace.json``, ``skills.json``, and ``README.md``.
+Discovers every skill under ``skills/`` and exposes parsed SKILL.md
+frontmatter and body, plus the repo-level ``marketplace.json``,
+``skills.json``, and ``README.md``.
+
+Per-skill ``.claude-plugin/plugin.json`` was removed: Claude Code's loader
+treats a per-skill plugin.json as a second component-declaring manifest,
+conflicting with the marketplace's ``skills`` array. ``marketplace.json``
+is the sole source of plugin metadata. The ``Skill.plugin_manifest`` field
+is retained as ``None`` for backwards compatibility but is not populated.
 """
 
 from __future__ import annotations
@@ -52,20 +58,14 @@ def _parse_skill_md(skill_md: Path) -> tuple[dict[str, Any], str]:
 def _load_skill(skill_dir: Path) -> Skill:
     skill_md = skill_dir / "SKILL.md"
     frontmatter, body = _parse_skill_md(skill_md)
-
-    plugin_manifest_path = skill_dir / ".claude-plugin" / "plugin.json"
-    plugin_manifest: dict[str, Any] | None = None
-    if plugin_manifest_path.exists():
-        plugin_manifest = json.loads(plugin_manifest_path.read_text(encoding="utf-8"))
-
     return Skill(
         name=skill_dir.name,
         path=skill_dir,
         skill_md_path=skill_md,
         frontmatter=frontmatter,
         body=body,
-        plugin_manifest_path=plugin_manifest_path if plugin_manifest is not None else None,
-        plugin_manifest=plugin_manifest,
+        plugin_manifest_path=None,
+        plugin_manifest=None,
     )
 
 
@@ -100,6 +100,15 @@ def marketplace_manifest(repo_root: Path) -> dict[str, Any]:
     path = repo_root / ".claude-plugin" / "marketplace.json"
     assert path.exists(), f"Missing {path} — every toolbox repo must have marketplace.json"
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+@pytest.fixture(scope="session")
+def marketplace_plugin_by_name(
+    marketplace_manifest: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    """Map plugin name → its marketplace.json plugin entry. Marketplace is the
+    sole source of plugin metadata."""
+    return {p["name"]: p for p in marketplace_manifest["plugins"]}
 
 
 @pytest.fixture(scope="session")

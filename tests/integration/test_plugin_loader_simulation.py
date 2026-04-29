@@ -122,6 +122,51 @@ def test_strict_false_plugins_have_no_conflicting_plugin_json(
         )
 
 
+def test_strict_false_skills_paths_have_no_sibling_plugin_json(
+    marketplace_manifest: dict[str, Any],
+    repo_root: Path,
+) -> None:
+    """The conflict ``claude /doctor`` reports as:
+
+        Plugin <name> has conflicting manifests: both plugin.json and
+        marketplace entry specify components. Set strict: true in marketplace
+        entry or remove component specs from one location.
+
+    Empirically, this fires whenever a plugin entry uses
+    ``strict: false`` + an explicit ``skills`` array AND any of those skill
+    directories contains ``.claude-plugin/plugin.json``. Claude Code's loader
+    treats the nested plugin.json as a second component-declaring manifest
+    even when it only carries metadata, because its position next to a
+    SKILL.md is itself an implicit component declaration.
+
+    The proven-good pattern (``anthropic-agent-skills``) ships zero per-skill
+    plugin.json files. Marketplace.json is the sole source of truth.
+    """
+    for plugin in marketplace_manifest["plugins"]:
+        if plugin.get("strict", True):
+            continue
+        skills_field = plugin.get("skills")
+        if skills_field is None:
+            continue
+        if isinstance(skills_field, str):
+            skills_field = [skills_field]
+        source = plugin["source"]
+        if not isinstance(source, str):
+            continue
+        plugin_root = (repo_root / source).resolve()
+        for entry in skills_field:
+            offending = (plugin_root / entry).resolve() / ".claude-plugin" / "plugin.json"
+            assert not offending.is_file(), (
+                f"marketplace plugin {plugin['name']!r}: strict=false with "
+                f"explicit skills=[{entry!r}], but a per-skill plugin.json "
+                f"exists at {offending.relative_to(repo_root)}. Claude Code's "
+                "loader treats this as a second component-declaring manifest "
+                "and reports a conflict in /doctor. Delete the per-skill "
+                "plugin.json — marketplace.json is the sole source of truth "
+                "(matches anthropic-agent-skills layout)."
+            )
+
+
 def test_marketplace_plugins_have_version_field(
     marketplace_manifest: dict[str, Any],
 ) -> None:

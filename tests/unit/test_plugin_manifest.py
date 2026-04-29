@@ -1,8 +1,17 @@
-"""Unit tests: per-skill ``.claude-plugin/plugin.json`` conforms to expected shape."""
+"""Unit tests: each skill's marketplace plugin entry conforms to expected shape.
+
+Per-skill ``.claude-plugin/plugin.json`` was removed: Claude Code's loader
+reports a conflicting-manifests error in ``/doctor`` when a plugin.json sits
+inside a skill directory that the marketplace also declares via
+``skills: [...]``. ``marketplace.json`` is now authoritative; these tests
+validate the marketplace plugin entry that corresponds to each discovered
+skill.
+"""
 
 from __future__ import annotations
 
 import re
+from typing import Any
 
 import pytest
 
@@ -15,79 +24,95 @@ SEMVER_RE = re.compile(
 )
 
 
-def test_plugin_manifest_parses(skill: Skill) -> None:
-    assert skill.plugin_manifest is not None, f"{skill.name}: plugin.json did not parse as JSON"
-    assert isinstance(skill.plugin_manifest, dict)
+def _entry_for(skill: Skill, by_name: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    entry = by_name.get(skill.name)
+    assert entry is not None, (
+        f"{skill.name}: no marketplace.json plugin entry. Add the skill to "
+        ".claude-plugin/marketplace.json plugins[]."
+    )
+    return entry
 
 
 @pytest.mark.parametrize("field", ["name", "version", "description"])
-def test_plugin_manifest_required_fields(skill: Skill, field: str) -> None:
-    assert skill.plugin_manifest is not None
-    assert field in skill.plugin_manifest, (
-        f"{skill.name}: plugin.json missing required field '{field}'"
-    )
-    value = skill.plugin_manifest[field]
+def test_marketplace_entry_required_fields(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+    field: str,
+) -> None:
+    entry = _entry_for(skill, marketplace_plugin_by_name)
+    value = entry.get(field)
     assert isinstance(value, str) and value.strip(), (
-        f"{skill.name}: plugin.json field '{field}' is empty"
+        f"{skill.name}: marketplace entry missing or empty '{field}'"
     )
 
 
-def test_plugin_manifest_version_is_semver(skill: Skill) -> None:
-    assert skill.plugin_manifest is not None
-    version = skill.plugin_manifest.get("version", "")
+def test_marketplace_entry_version_is_semver(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    entry = _entry_for(skill, marketplace_plugin_by_name)
+    version = entry.get("version", "")
     assert SEMVER_RE.match(version), (
-        f"{skill.name}: plugin.json version '{version}' is not valid semver."
+        f"{skill.name}: marketplace entry version '{version}' is not valid semver."
     )
 
 
-def test_plugin_manifest_name_matches_skill(skill: Skill) -> None:
-    assert skill.plugin_manifest is not None
-    assert skill.plugin_manifest["name"] == skill.name, (
-        f"{skill.name}: plugin.json name '{skill.plugin_manifest['name']}' "
-        f"does not match skill directory '{skill.name}'"
+def test_marketplace_entry_name_matches_skill(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    entry = _entry_for(skill, marketplace_plugin_by_name)
+    assert entry["name"] == skill.name, (
+        f"{skill.name}: marketplace entry name '{entry['name']}' does not match skill directory."
     )
 
 
-def test_plugin_manifest_repository_is_string(skill: Skill) -> None:
-    """Claude Code's plugin.json schema requires ``repository`` to be a string
-    URL, not an object. Declaring it as ``{type, url, directory}`` (npm-style)
-    fails ``claude plugin validate`` with:
-
-        repository: Invalid input: expected string, received object
-    """
-    assert skill.plugin_manifest is not None
-    repo = skill.plugin_manifest.get("repository")
-    if repo is None:
-        pytest.skip("repository not declared")
-    assert isinstance(repo, str) and repo.strip(), (
-        f"{skill.name}: plugin.json 'repository' must be a string URL "
-        f"(got {type(repo).__name__}). The npm-style "
-        "{type, url, directory} object form fails Claude Code's validator."
-    )
-
-
-def test_plugin_manifest_author_shape(skill: Skill) -> None:
-    """``author`` may be a string or an object with at least ``name``."""
-    assert skill.plugin_manifest is not None
-    author = skill.plugin_manifest.get("author")
-    if author is None:
-        pytest.skip("author not declared")
-    if isinstance(author, str):
-        assert author.strip(), f"{skill.name}: plugin.json author string is empty"
-        return
-    assert isinstance(author, dict), f"{skill.name}: plugin.json author must be string or object"
-    assert author.get("name"), f"{skill.name}: plugin.json author object must include 'name'"
-
-
-def test_plugin_manifest_keywords_are_list(skill: Skill) -> None:
-    assert skill.plugin_manifest is not None
-    keywords = skill.plugin_manifest.get("keywords")
+def test_marketplace_entry_keywords_are_list(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    entry = _entry_for(skill, marketplace_plugin_by_name)
+    keywords = entry.get("keywords")
     if keywords is None:
         pytest.skip("keywords not declared")
     assert isinstance(keywords, list)
     assert all(isinstance(k, str) and k for k in keywords), (
-        f"{skill.name}: plugin.json keywords must be a list of non-empty strings"
+        f"{skill.name}: marketplace entry keywords must be a list of non-empty strings"
     )
     assert len(keywords) >= 3, (
-        f"{skill.name}: plugin.json should declare ≥ 3 keywords for registry search."
+        f"{skill.name}: marketplace entry should declare ≥ 3 keywords for registry search."
+    )
+
+
+def test_marketplace_entry_author_shape(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    """``author`` may be a string or an object with at least ``name``."""
+    entry = _entry_for(skill, marketplace_plugin_by_name)
+    author = entry.get("author")
+    if author is None:
+        pytest.skip("author not declared")
+    if isinstance(author, str):
+        assert author.strip(), f"{skill.name}: marketplace entry author string is empty"
+        return
+    assert isinstance(author, dict), (
+        f"{skill.name}: marketplace entry author must be string or object"
+    )
+    assert author.get("name"), f"{skill.name}: marketplace entry author object must include 'name'"
+
+
+def test_marketplace_entry_repository_is_string_if_present(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    """Claude Code's plugin schema requires ``repository`` to be a string URL,
+    not the npm-style ``{type, url, directory}`` object."""
+    entry = _entry_for(skill, marketplace_plugin_by_name)
+    repo = entry.get("repository")
+    if repo is None:
+        pytest.skip("repository not declared")
+    assert isinstance(repo, str) and repo.strip(), (
+        f"{skill.name}: marketplace entry 'repository' must be a string URL "
+        f"(got {type(repo).__name__})."
     )

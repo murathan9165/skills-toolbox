@@ -27,11 +27,25 @@ def test_skill_has_evals(skill: Skill) -> None:
     assert evals.exists(), f"{skill.name}: missing evals/trigger-tests.json"
 
 
-def test_skill_has_plugin_manifest(skill: Skill) -> None:
+def test_skill_has_no_per_skill_plugin_manifest(skill: Skill) -> None:
+    """Per-skill ``.claude-plugin/plugin.json`` must NOT exist.
+
+    Claude Code's loader treats a per-skill plugin.json sitting next to the
+    SKILL.md as a second component-declaring manifest, conflicting with the
+    ``skills: [...]`` entry in marketplace.json. The proven-good pattern
+    (``anthropic-agent-skills``) ships zero per-skill plugin.json files;
+    marketplace.json is the sole source of truth for plugin metadata.
+
+    If a future skill needs per-skill metadata that the marketplace cannot
+    express, restructure to the deep-nested layout
+    (``plugins/<plugin>/skills/<skill>/SKILL.md``) so plugin.json sits at
+    the plugin root, not inside the skill directory.
+    """
     plugin_json = skill.path / ".claude-plugin" / "plugin.json"
-    assert plugin_json.exists(), (
-        f"{skill.name}: missing .claude-plugin/plugin.json — required for Claude "
-        "Code plugin distribution."
+    assert not plugin_json.exists(), (
+        f"{skill.name}: a per-skill plugin.json exists at {plugin_json}. "
+        "Claude Code's /doctor reports this as a conflicting manifest. "
+        "Delete it — marketplace.json is authoritative."
     )
 
 

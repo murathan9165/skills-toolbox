@@ -1,7 +1,8 @@
 """Integration tests: name/version consistency across all manifests.
 
-SKILL.md frontmatter is the single source of truth. plugin.json, marketplace.json,
-and skills.json entries must agree.
+SKILL.md frontmatter is the single source of truth for skill identity.
+The marketplace.json plugin entry (which doubles as plugin metadata, since
+per-skill plugin.json was removed) and skills.json must agree.
 """
 
 from __future__ import annotations
@@ -12,31 +13,40 @@ from typing import Any
 from tests.conftest import Skill
 
 
-def test_frontmatter_matches_plugin_manifest_identity(skill: Skill) -> None:
-    """name and version are identity fields; they must match exactly.
+def test_frontmatter_matches_marketplace_entry_identity(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    """name and version are identity fields; they must match exactly between
+    SKILL.md frontmatter and the marketplace plugin entry.
 
     description is intentionally allowed to differ: SKILL.md description is the
     trigger signal injected into agent prompts (verbose, keyword-rich), while
-    plugin.json description is the marketing blurb that shows in registries.
+    the marketplace description is the marketing blurb on registry cards.
     """
-    assert skill.plugin_manifest is not None
+    entry = marketplace_plugin_by_name.get(skill.name)
+    assert entry is not None, f"{skill.name}: missing from marketplace.json plugins[]"
     for field in ("name", "version"):
         fm = skill.frontmatter.get(field)
-        pj = skill.plugin_manifest.get(field)
-        assert fm == pj, (
+        me = entry.get(field)
+        assert fm == me, (
             f"{skill.name}: SKILL.md frontmatter '{field}' ({fm!r}) does not match "
-            f"plugin.json '{field}' ({pj!r})"
+            f"marketplace entry '{field}' ({me!r})"
         )
 
 
-def test_plugin_manifest_description_is_nonempty(skill: Skill) -> None:
-    """plugin.json description can differ from SKILL.md description but must exist
-    and be reasonably short (< 400 chars — registry card length)."""
-    assert skill.plugin_manifest is not None
-    desc = skill.plugin_manifest.get("description", "")
-    assert desc, f"{skill.name}: plugin.json description is empty"
+def test_marketplace_entry_description_is_nonempty(
+    skill: Skill,
+    marketplace_plugin_by_name: dict[str, dict[str, Any]],
+) -> None:
+    """Marketplace description can differ from SKILL.md description but must
+    exist and be reasonably short (< 400 chars — registry card length)."""
+    entry = marketplace_plugin_by_name.get(skill.name)
+    assert entry is not None
+    desc = entry.get("description", "")
+    assert desc, f"{skill.name}: marketplace entry description is empty"
     assert len(desc) < 400, (
-        f"{skill.name}: plugin.json description is {len(desc)} chars; "
+        f"{skill.name}: marketplace entry description is {len(desc)} chars; "
         "keep it under 400 so it fits on registry cards."
     )
 
