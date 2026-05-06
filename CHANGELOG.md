@@ -4,15 +4,10 @@ All notable changes to this repository will be documented in this file.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
-## [0.1.0] — 2026-04-22
+## [1.0.0] — 2026-05-06
 
 ### Added
-- Initial public release of `skills-toolbox` as a multi-skill `SKILL.md` monorepo.
-- `docs/tech-spec.md` — authoritative authoring + publishing spec.
-- `docs/deep-thoughts-publishing-strategy.md` — registry deep-dive (pre-existing).
-- `skills/deep-thoughts/` — Socratic / design-thinking reasoning skill (v0.1.0).
-- `.claude-plugin/marketplace.json` — Claude Code plugin marketplace manifest.
+- Initial release of `skills-toolbox` under Murathan Kocaman.
+- `skills/nonprofit-grant-writing/` — structured grant proposal skill for nonprofits, built during IPHS 300 AI for Humanity at Kenyon College (v1.0.0).
 - `skills.json` — skills.sh bundle manifest.
-- TDD test suite (`tests/unit`, `tests/integration`, `tests/e2e`) with description-heuristic checks.
-- GitHub Actions CI (`.github/workflows/ci.yml`).
-- `pyproject.toml` with `uv`-managed dev dependencies.
+- `.claude-plugin/marketplace.json` — Claude Code plugin marketplace manifest.

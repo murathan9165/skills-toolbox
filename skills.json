@@ -1,16 +1,16 @@
 {
-  "name": "jon-chun/skills-toolbox",
-  "version": "0.1.0",
-  "description": "Jon Chun's agent skills toolbox — SKILL.md-format skills compatible with Claude Code, Codex, Cursor, Copilot, and Gemini CLI.",
-  "homepage": "https://github.com/jon-chun/skills-toolbox",
-  "author": "jon-chun",
+  "name": "murathan9165/skills-toolbox",
+  "version": "1.0.0",
+  "description": "Murathan Kocaman's agent skills toolbox — SKILL.md-format skills compatible with Claude Code, Codex, Cursor, Copilot, and Gemini CLI.",
+  "homepage": "https://github.com/murathan9165/skills-toolbox",
+  "author": "murathan9165",
   "license": "MIT",
   "skills": [
     {
-      "name": "deep-thoughts",
-      "path": "skills/deep-thoughts",
-      "description": "Socratic and design-thinking reasoning companion for rigorous deliberation before answering or deciding.",
-      "version": "0.1.0"
+      "name": "nonprofit-grant-writing",
+      "path": "skills/nonprofit-grant-writing",
+      "description": "Structured grant proposal workflow for nonprofits — enforces research-first sequencing, SMART objectives, logic model, budget justification discipline, and Red Team 5 Cs review.",
+      "version": "1.0.0"
     }
   ]
 }

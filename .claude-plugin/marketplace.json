@@ -1,29 +1,29 @@
 {
   "$schema": "https://claude.ai/schemas/plugin-marketplace.json",
   "name": "skills-toolbox",
-  "description": "Jon Chun's agent skills toolbox — a curated collection of SKILL.md-format skills for Claude Code and compatible agents.",
+  "description": "Murathan Kocaman's agent skills toolbox — a curated collection of SKILL.md-format skills for Claude Code and compatible agents.",
   "owner": {
-    "name": "jon-chun",
-    "url": "https://github.com/jon-chun"
+    "name": "murathan9165",
+    "url": "https://github.com/murathan9165"
   },
   "metadata": {
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "plugins": [
     {
-      "name": "deep-thoughts",
+      "name": "nonprofit-grant-writing",
       "source": "./",
-      "skills": ["./skills/deep-thoughts"],
+      "skills": ["./skills/nonprofit-grant-writing"],
       "strict": false,
-      "version": "0.1.0",
-      "description": "Socratic and design-thinking reasoning companion: reframes problems, surfaces assumptions, runs premortems, steelmans opposing views, and applies first-principles deliberation before answering.",
+      "version": "1.0.0",
+      "description": "Structured grant proposal workflow for nonprofits — enforces research-first sequencing, SMART objectives, logic model, budget justification discipline, and Red Team 5 Cs review.",
       "author": {
-        "name": "jon-chun",
-        "url": "https://github.com/jon-chun"
+        "name": "murathan9165",
+        "url": "https://github.com/murathan9165"
       },
       "license": "MIT",
-      "homepage": "https://github.com/jon-chun/skills-toolbox",
-      "keywords": ["reasoning", "socratic", "design-thinking", "premortem", "critical-thinking", "first-principles"]
+      "homepage": "https://github.com/murathan9165/skills-toolbox",
+      "keywords": ["nonprofit", "grant-writing", "CDBG", "logic-model", "fundraising", "proposal"]
     }
   ]
 }
